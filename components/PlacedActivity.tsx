@@ -11,17 +11,17 @@ interface PlacedActivityProps {
 export default function PlacedActivity({ activity, entryId, onRemove }: PlacedActivityProps) {
   return (
     <div
-      className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm group"
+      className="flex flex-col items-center justify-center gap-0.5 px-2 py-3 rounded-xl group relative"
       style={{
-        backgroundColor: activity.color + '25',
-        border: `1px solid ${activity.color}40`,
+        backgroundColor: activity.color + '20',
+        border: `2px solid ${activity.color}35`,
       }}
     >
-      <span className="text-lg leading-none">{activity.emoji}</span>
-      <span className="font-medium text-gray-700 truncate flex-1">{activity.name}</span>
+      <span className="text-2xl">{activity.emoji}</span>
+      <span className="font-semibold text-gray-700 text-sm text-center leading-tight">{activity.name}</span>
       <button
         onClick={() => onRemove(entryId)}
-        className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-opacity ml-0.5 text-xl leading-none p-1"
+        className="opacity-0 group-hover:opacity-100 absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-400 hover:bg-red-500 text-white rounded-full text-sm flex items-center justify-center transition-opacity shadow"
         aria-label="Odebrat"
       >
         &times;
