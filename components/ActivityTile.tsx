@@ -39,7 +39,7 @@ export default function ActivityTile({ activity, onEdit, onDelete }: ActivityTil
           borderLeft: `3px solid ${activity.color}`,
         }}
       >
-        <span className="text-base leading-none">{activity.emoji}</span>
+        <span className="text-xl shrink-0" role="img">{activity.emoji}</span>
         <span className="font-medium text-gray-700 truncate">{activity.name}</span>
       </div>
       {isEditMode && (

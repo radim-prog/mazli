@@ -266,13 +266,13 @@ export default function Home() {
         <DragOverlay>
           {activeActivity ? (
             <div
-              className="drag-overlay flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg shadow-lg text-sm"
+              className="drag-overlay flex items-center gap-2 px-3 py-2 rounded-lg shadow-lg text-base"
               style={{
                 backgroundColor: activeActivity.color + '30',
                 borderLeft: `3px solid ${activeActivity.color}`,
               }}
             >
-              <span className="text-base leading-none">{activeActivity.emoji}</span>
+              <span className="text-2xl" role="img">{activeActivity.emoji}</span>
               <span className="font-medium text-gray-700">{activeActivity.name}</span>
             </div>
           ) : null}

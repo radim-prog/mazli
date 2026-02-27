@@ -32,8 +32,8 @@ export default function PlacedActivity({ activity, entryId, onRemove }: PlacedAc
         opacity: isDragging ? 0.3 : 1,
       }}
     >
-      <span className="text-3xl">{activity.emoji}</span>
-      <span className="font-semibold text-gray-700 text-sm text-center leading-tight">{activity.name}</span>
+      <span className="text-4xl" role="img">{activity.emoji}</span>
+      <span className="font-semibold text-gray-700 text-base text-center leading-tight">{activity.name}</span>
       <button
         onClick={(e) => {
           e.stopPropagation()
