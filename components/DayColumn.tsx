@@ -7,9 +7,10 @@ interface DayColumnProps {
   dayIndex: number
   entries: CalendarEntryWithActivity[]
   onRemoveEntry: (entryId: string) => void
+  onRepeatEntry: (entryId: string) => void
 }
 
-export default function DayColumn({ dayIndex, entries, onRemoveEntry }: DayColumnProps) {
+export default function DayColumn({ dayIndex, entries, onRemoveEntry, onRepeatEntry }: DayColumnProps) {
   const morningEntries = entries
     .filter((e) => e.time_slot === 'morning')
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
@@ -35,6 +36,7 @@ export default function DayColumn({ dayIndex, entries, onRemoveEntry }: DayColum
           timeSlot="morning"
           entries={morningEntries}
           onRemoveEntry={onRemoveEntry}
+          onRepeatEntry={onRepeatEntry}
         />
       </div>
 
@@ -50,6 +52,7 @@ export default function DayColumn({ dayIndex, entries, onRemoveEntry }: DayColum
           timeSlot="afternoon"
           entries={afternoonEntries}
           onRemoveEntry={onRemoveEntry}
+          onRepeatEntry={onRepeatEntry}
         />
       </div>
     </div>

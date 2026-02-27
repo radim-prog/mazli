@@ -10,9 +10,10 @@ interface TimeSlotProps {
   timeSlot: TimeSlotType
   entries: CalendarEntryWithActivity[]
   onRemoveEntry: (entryId: string) => void
+  onRepeatEntry: (entryId: string) => void
 }
 
-export default function TimeSlot({ dayIndex, timeSlot, entries, onRemoveEntry }: TimeSlotProps) {
+export default function TimeSlot({ dayIndex, timeSlot, entries, onRemoveEntry, onRepeatEntry }: TimeSlotProps) {
   const droppableId = `${dayIndex}-${timeSlot}`
   const { isOver, setNodeRef } = useDroppable({
     id: droppableId,
@@ -43,6 +44,7 @@ export default function TimeSlot({ dayIndex, timeSlot, entries, onRemoveEntry }:
               activity={entry.activity}
               entryId={entry.id}
               onRemove={onRemoveEntry}
+              onRepeat={onRepeatEntry}
             />
           ))}
         </div>

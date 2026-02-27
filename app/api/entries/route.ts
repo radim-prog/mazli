@@ -25,6 +25,29 @@ export async function GET(request: NextRequest) {
 export async function POST(request: Request) {
   const body = await request.json()
 
+  // Batch insert for repeat functionality
+  if (body.batch && Array.isArray(body.batch)) {
+    const rows = body.batch.map((item: { activity_id: string; week_start: string; day_of_week: number; time_slot: string }) => ({
+      activity_id: item.activity_id,
+      week_start: item.week_start,
+      day_of_week: item.day_of_week,
+      time_slot: item.time_slot,
+      sort_order: 0,
+    }))
+
+    const { data, error } = await supabase
+      .from('calendar_entries')
+      .insert(rows)
+      .select('*, activity:activities(*)')
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json(data)
+  }
+
+  // Single insert
   const { data, error } = await supabase
     .from('calendar_entries')
     .insert({

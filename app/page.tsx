@@ -19,6 +19,7 @@ import WeeklyCalendar from '@/components/WeeklyCalendar'
 import ActivitySidebar from '@/components/ActivitySidebar'
 import WeekNavigation from '@/components/WeekNavigation'
 import AddActivityDialog from '@/components/AddActivityDialog'
+import RepeatDialog from '@/components/RepeatDialog'
 
 export default function Home() {
   const [weekStart, setWeekStart] = useState(() => getWeekStart(new Date()))
@@ -28,6 +29,7 @@ export default function Home() {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null)
   const [loading, setLoading] = useState(true)
+  const [repeatEntryId, setRepeatEntryId] = useState<string | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -285,6 +287,41 @@ export default function Home() {
     }
   }
 
+  // Repeat entry to future weeks
+  const handleRepeatEntry = async (weeks: number) => {
+    if (!repeatEntryId) return
+    const entry = entries.find((e) => e.id === repeatEntryId)
+    if (!entry) return
+
+    setRepeatEntryId(null)
+
+    // Calculate future week_start dates
+    const baseWeekStart = new Date(entry.week_start + 'T00:00:00')
+    const batch = []
+    for (let i = 1; i <= weeks; i++) {
+      const futureWeek = new Date(baseWeekStart)
+      futureWeek.setDate(futureWeek.getDate() + i * 7)
+      batch.push({
+        activity_id: entry.activity_id,
+        week_start: formatDate(futureWeek),
+        day_of_week: entry.day_of_week,
+        time_slot: entry.time_slot,
+      })
+    }
+
+    try {
+      await fetch('/api/entries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ batch }),
+      })
+    } catch (err) {
+      console.error('Failed to repeat entry:', err)
+    }
+  }
+
+  const repeatEntry = repeatEntryId ? entries.find((e) => e.id === repeatEntryId) : null
+
   // Collect existing categories
   const existingCategories = [...new Set(activities.map((a) => a.category))]
 
@@ -330,7 +367,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="bg-white/50 rounded-xl border border-gray-200/50 p-3 shadow-sm flex-1 flex flex-col min-h-[calc(100vh-100px)]">
-                <WeeklyCalendar entries={entries} onRemoveEntry={handleRemoveEntry} />
+                <WeeklyCalendar entries={entries} onRemoveEntry={handleRemoveEntry} onRepeatEntry={setRepeatEntryId} />
               </div>
             )}
           </section>
@@ -361,6 +398,16 @@ export default function Home() {
           onAdd={handleAddActivity}
           onEdit={handleEditActivity}
         />
+
+        {/* Repeat dialog */}
+        {repeatEntry && (
+          <RepeatDialog
+            activityName={repeatEntry.activity.name}
+            activityEmoji={repeatEntry.activity.emoji}
+            onConfirm={handleRepeatEntry}
+            onClose={() => setRepeatEntryId(null)}
+          />
+        )}
 
         {/* Auto-save indicator */}
         <div className="fixed bottom-3 right-3 text-xs text-gray-400 bg-white/80 px-2 py-1 rounded-full shadow-sm">

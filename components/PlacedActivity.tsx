@@ -8,9 +8,10 @@ interface PlacedActivityProps {
   activity: Activity
   entryId: string
   onRemove: (entryId: string) => void
+  onRepeat: (entryId: string) => void
 }
 
-export default function PlacedActivity({ activity, entryId, onRemove }: PlacedActivityProps) {
+export default function PlacedActivity({ activity, entryId, onRemove, onRepeat }: PlacedActivityProps) {
   const {
     attributes,
     listeners,
@@ -41,6 +42,8 @@ export default function PlacedActivity({ activity, entryId, onRemove }: PlacedAc
     >
       <span className="text-4xl" role="img">{activity.emoji}</span>
       <span className="font-semibold text-gray-700 text-base text-center leading-tight">{activity.name}</span>
+
+      {/* Remove button */}
       <button
         onClick={(e) => {
           e.stopPropagation()
@@ -52,6 +55,20 @@ export default function PlacedActivity({ activity, entryId, onRemove }: PlacedAc
         aria-label="Odebrat"
       >
         &times;
+      </button>
+
+      {/* Repeat button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          e.preventDefault()
+          onRepeat(entryId)
+        }}
+        onPointerDown={(e) => e.stopPropagation()}
+        className="opacity-0 group-hover:opacity-100 absolute -top-1.5 -left-1.5 w-6 h-6 bg-blue-400 hover:bg-blue-500 text-white rounded-full text-xs flex items-center justify-center transition-opacity shadow"
+        aria-label="Opakovat"
+      >
+        🔁
       </button>
     </div>
   )

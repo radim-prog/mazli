@@ -6,9 +6,10 @@ import DayColumn from './DayColumn'
 interface WeeklyCalendarProps {
   entries: CalendarEntryWithActivity[]
   onRemoveEntry: (entryId: string) => void
+  onRepeatEntry: (entryId: string) => void
 }
 
-export default function WeeklyCalendar({ entries, onRemoveEntry }: WeeklyCalendarProps) {
+export default function WeeklyCalendar({ entries, onRemoveEntry, onRepeatEntry }: WeeklyCalendarProps) {
   return (
     <div className="grid grid-cols-7 gap-1.5 flex-1 h-full">
       {[0, 1, 2, 3, 4, 5, 6].map((dayIndex) => (
@@ -17,6 +18,7 @@ export default function WeeklyCalendar({ entries, onRemoveEntry }: WeeklyCalenda
           dayIndex={dayIndex}
           entries={entries.filter((e) => e.day_of_week === dayIndex)}
           onRemoveEntry={onRemoveEntry}
+          onRepeatEntry={onRepeatEntry}
         />
       ))}
     </div>
