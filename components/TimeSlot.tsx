@@ -28,12 +28,12 @@ export default function TimeSlot({ dayIndex, timeSlot, entries, onRemoveEntry, o
   return (
     <div
       ref={setNodeRef}
-      className={`min-h-[80px] md:min-h-[180px] flex-1 p-1 md:p-2 rounded-lg transition-colors flex flex-col ${alignment} ${
+      className={`min-h-[40px] flex-1 p-1 md:p-2 rounded-lg transition-colors flex flex-col ${alignment} ${
         isOver ? 'bg-blue-100 ring-2 ring-blue-300' : 'bg-white/60'
       }`}
     >
       {/* Drop padding zone (away from lunch) */}
-      <div className="min-h-[8px] md:min-h-[20px] shrink-0" />
+      <div className="min-h-[4px] md:min-h-[12px] shrink-0" />
 
       {/* Entries that stretch to fill */}
       <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
@@ -51,10 +51,10 @@ export default function TimeSlot({ dayIndex, timeSlot, entries, onRemoveEntry, o
       </SortableContext>
 
       {/* Drop padding zone (near lunch) */}
-      <div className="min-h-[8px] md:min-h-[20px] shrink-0" />
+      <div className="min-h-[4px] md:min-h-[12px] shrink-0" />
 
       {entries.length === 0 && isOver && (
-        <div className="absolute inset-0 flex items-center justify-center text-blue-300 text-2xl pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center text-blue-300 text-xl pointer-events-none">
           ↓
         </div>
       )}

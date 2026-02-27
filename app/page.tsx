@@ -30,6 +30,7 @@ export default function Home() {
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null)
   const [loading, setLoading] = useState(true)
   const [repeatEntryId, setRepeatEntryId] = useState<string | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -342,10 +343,10 @@ export default function Home() {
 
         {/* Main content */}
         <main className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full p-1 md:p-3 gap-1 md:gap-3">
-          {/* Sidebar */}
-          <aside className="order-2 lg:order-1 lg:w-48 xl:w-56 shrink-0">
+          {/* Sidebar - hidden on mobile, overlay drawer */}
+          <aside className="hidden lg:block lg:order-1 lg:w-48 xl:w-56 shrink-0">
             <div className="lg:sticky lg:top-3">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2 hidden lg:block">
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">
                 Aktivity
               </h2>
               <ActivitySidebar
@@ -357,8 +358,35 @@ export default function Home() {
             </div>
           </aside>
 
+          {/* Mobile sidebar drawer */}
+          {sidebarOpen && (
+            <div className="lg:hidden fixed inset-0 z-40 flex" onClick={() => setSidebarOpen(false)}>
+              <div className="absolute inset-0 bg-black/30" />
+              <div
+                className="relative ml-auto w-64 max-w-[80vw] bg-white h-full shadow-xl p-3 overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-sm font-semibold text-gray-600">Aktivity</h2>
+                  <button
+                    onClick={() => setSidebarOpen(false)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 text-lg"
+                  >
+                    &times;
+                  </button>
+                </div>
+                <ActivitySidebar
+                  activities={activities}
+                  onAddClick={() => { setEditingActivity(null); setShowAddDialog(true); setSidebarOpen(false) }}
+                  onEditActivity={(a) => { setEditingActivity(a); setShowAddDialog(true); setSidebarOpen(false) }}
+                  onDeleteActivity={handleDeleteActivity}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Calendar grid */}
-          <section className="order-1 lg:order-2 flex-1 min-w-0 flex flex-col">
+          <section className="flex-1 min-w-0 flex flex-col lg:order-2">
             {loading && entries.length === 0 ? (
               <div className="flex items-center justify-center flex-1 text-gray-400">
                 <div className="text-center">
@@ -367,12 +395,21 @@ export default function Home() {
                 </div>
               </div>
             ) : (
-              <div className="bg-white/50 rounded-lg md:rounded-xl border border-gray-200/50 p-1 md:p-3 shadow-sm flex-1 flex flex-col min-h-[calc(100vh-50px)] md:min-h-[calc(100vh-100px)]">
+              <div className="bg-white/50 rounded-lg md:rounded-xl border border-gray-200/50 p-1 md:p-3 shadow-sm flex-1 flex flex-col h-[calc(100dvh-44px)] md:h-auto md:min-h-[calc(100vh-100px)]">
                 <WeeklyCalendar entries={entries} onRemoveEntry={handleRemoveEntry} onRepeatEntry={setRepeatEntryId} />
               </div>
             )}
           </section>
         </main>
+
+        {/* Mobile: floating button to open sidebar */}
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="lg:hidden fixed bottom-3 left-3 z-30 w-12 h-12 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center text-xl active:scale-95 transition-transform"
+          aria-label="Aktivity"
+        >
+          +
+        </button>
 
         {/* Drag overlay */}
         <DragOverlay>
