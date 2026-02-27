@@ -10,7 +10,9 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
+  closestCenter,
 } from '@dnd-kit/core'
+import { arrayMove } from '@dnd-kit/sortable'
 import { Activity, CalendarEntryWithActivity } from '@/lib/types'
 import { getWeekStart, formatDate } from '@/lib/utils'
 import WeeklyCalendar from '@/components/WeeklyCalendar'
@@ -75,25 +77,97 @@ export default function Home() {
     const activity = active.data.current?.activity as Activity | undefined
     if (!activity) return
 
-    const dropData = over.data.current as { dayIndex: number; timeSlot: string } | undefined
-    if (!dropData) return
-
     const isMove = active.data.current?.isMove === true
     const existingEntryId = active.data.current?.entryId as string | undefined
 
+    // Check if dropping onto another sortable entry (reorder within slot)
+    const overIdStr = String(over.id)
+    const activeIdStr = String(active.id)
+    const isOverEntry = overIdStr.startsWith('entry-')
+    const isActiveEntry = activeIdStr.startsWith('entry-')
+
+    if (isMove && existingEntryId && isOverEntry && isActiveEntry && activeIdStr !== overIdStr) {
+      // Same-slot reorder: both active and over are entries
+      const overEntryId = overIdStr.replace('entry-', '')
+      const activeEntry = entries.find((e) => e.id === existingEntryId)
+      const overEntry = entries.find((e) => e.id === overEntryId)
+
+      if (activeEntry && overEntry &&
+          activeEntry.day_of_week === overEntry.day_of_week &&
+          activeEntry.time_slot === overEntry.time_slot) {
+        // Get entries in this slot, sorted by current sort_order
+        const slotEntries = entries
+          .filter((e) => e.day_of_week === activeEntry.day_of_week && e.time_slot === activeEntry.time_slot)
+          .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+
+        const oldIndex = slotEntries.findIndex((e) => e.id === existingEntryId)
+        const newIndex = slotEntries.findIndex((e) => e.id === overEntryId)
+
+        if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+          const reordered = arrayMove(slotEntries, oldIndex, newIndex)
+          const reorderUpdates = reordered.map((e, i) => ({ id: e.id, sort_order: i }))
+
+          // Optimistic update
+          setEntries((prev) => {
+            const updated = [...prev]
+            for (const upd of reorderUpdates) {
+              const idx = updated.findIndex((e) => e.id === upd.id)
+              if (idx !== -1) updated[idx] = { ...updated[idx], sort_order: upd.sort_order }
+            }
+            return updated
+          })
+
+          try {
+            await fetch('/api/entries', {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ reorder: reorderUpdates }),
+            })
+          } catch {
+            // Revert on error
+            fetchEntries()
+          }
+        }
+        return
+      }
+    }
+
+    // Determine drop target slot (could be a droppable zone or another entry)
+    let dropDayIndex: number | undefined
+    let dropTimeSlot: string | undefined
+
+    if (isOverEntry) {
+      // Dropped on another entry - use that entry's slot
+      const overEntryId = overIdStr.replace('entry-', '')
+      const overEntry = entries.find((e) => e.id === overEntryId)
+      if (overEntry) {
+        dropDayIndex = overEntry.day_of_week
+        dropTimeSlot = overEntry.time_slot
+      }
+    } else {
+      // Dropped on a droppable zone
+      const dropData = over.data.current as { dayIndex: number; timeSlot: string } | undefined
+      if (dropData) {
+        dropDayIndex = dropData.dayIndex
+        dropTimeSlot = dropData.timeSlot
+      }
+    }
+
+    if (dropDayIndex === undefined || dropTimeSlot === undefined) return
+
     if (isMove && existingEntryId) {
-      // Moving an existing entry to a new slot
+      // Moving an existing entry to a different slot
       const oldEntry = entries.find((e) => e.id === existingEntryId)
       if (!oldEntry) return
 
       // Skip if dropped on the same slot
-      if (oldEntry.day_of_week === dropData.dayIndex && oldEntry.time_slot === dropData.timeSlot) return
+      if (oldEntry.day_of_week === dropDayIndex && oldEntry.time_slot === dropTimeSlot) return
 
       // Optimistic update
       setEntries((prev) =>
         prev.map((e) =>
           e.id === existingEntryId
-            ? { ...e, day_of_week: dropData.dayIndex, time_slot: dropData.timeSlot as 'morning' | 'afternoon' }
+            ? { ...e, day_of_week: dropDayIndex!, time_slot: dropTimeSlot as 'morning' | 'afternoon' }
             : e
         )
       )
@@ -104,14 +178,13 @@ export default function Home() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id: existingEntryId,
-            day_of_week: dropData.dayIndex,
-            time_slot: dropData.timeSlot,
+            day_of_week: dropDayIndex,
+            time_slot: dropTimeSlot,
           }),
         })
         const saved = await res.json()
         setEntries((prev) => prev.map((e) => (e.id === existingEntryId ? saved : e)))
       } catch {
-        // Revert
         if (oldEntry) setEntries((prev) => prev.map((e) => (e.id === existingEntryId ? oldEntry : e)))
       }
     } else {
@@ -121,8 +194,9 @@ export default function Home() {
         id: tempId,
         activity_id: activity.id,
         week_start: formatDate(weekStart),
-        day_of_week: dropData.dayIndex,
-        time_slot: dropData.timeSlot as 'morning' | 'afternoon',
+        day_of_week: dropDayIndex,
+        time_slot: dropTimeSlot as 'morning' | 'afternoon',
+        sort_order: 0,
         created_at: new Date().toISOString(),
         activity,
       }
@@ -135,8 +209,8 @@ export default function Home() {
           body: JSON.stringify({
             activity_id: activity.id,
             week_start: formatDate(weekStart),
-            day_of_week: dropData.dayIndex,
-            time_slot: dropData.timeSlot,
+            day_of_week: dropDayIndex,
+            time_slot: dropTimeSlot,
           }),
         })
         const saved = await res.json()
@@ -215,7 +289,7 @@ export default function Home() {
   const existingCategories = [...new Set(activities.map((a) => a.category))]
 
   return (
-    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="min-h-screen flex flex-col">
         {/* Header */}
         <header className="bg-white/70 backdrop-blur-sm border-b border-amber-200/50 px-4 py-3">

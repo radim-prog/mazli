@@ -1,6 +1,7 @@
 'use client'
 
-import { useDraggable } from '@dnd-kit/core'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { Activity } from '@/lib/types'
 
 interface PlacedActivityProps {
@@ -10,14 +11,25 @@ interface PlacedActivityProps {
 }
 
 export default function PlacedActivity({ activity, entryId, onRemove }: PlacedActivityProps) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: `entry-${entryId}`,
     data: { activity, entryId, isMove: true },
   })
 
-  const style = transform
-    ? { transform: `translate(${transform.x}px, ${transform.y}px)` }
-    : undefined
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.3 : 1,
+    backgroundColor: activity.color + '20',
+    border: `2px solid ${activity.color}35`,
+  }
 
   return (
     <div
@@ -25,12 +37,7 @@ export default function PlacedActivity({ activity, entryId, onRemove }: PlacedAc
       {...listeners}
       {...attributes}
       className="activity-tile flex-1 flex flex-col items-center justify-center gap-1 px-2 py-3 rounded-xl group relative cursor-grab active:cursor-grabbing select-none min-h-0"
-      style={{
-        ...style,
-        backgroundColor: activity.color + '20',
-        border: `2px solid ${activity.color}35`,
-        opacity: isDragging ? 0.3 : 1,
-      }}
+      style={style}
     >
       <span className="text-4xl" role="img">{activity.emoji}</span>
       <span className="font-semibold text-gray-700 text-base text-center leading-tight">{activity.name}</span>

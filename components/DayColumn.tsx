@@ -10,8 +10,12 @@ interface DayColumnProps {
 }
 
 export default function DayColumn({ dayIndex, entries, onRemoveEntry }: DayColumnProps) {
-  const morningEntries = entries.filter((e) => e.time_slot === 'morning')
-  const afternoonEntries = entries.filter((e) => e.time_slot === 'afternoon')
+  const morningEntries = entries
+    .filter((e) => e.time_slot === 'morning')
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+  const afternoonEntries = entries
+    .filter((e) => e.time_slot === 'afternoon')
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
 
   const isWeekend = dayIndex >= 5
 

@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     .from('calendar_entries')
     .select('*, activity:activities(*)')
     .eq('week_start', weekStart)
+    .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true })
 
   if (error) {
@@ -31,6 +32,7 @@ export async function POST(request: Request) {
       week_start: body.week_start,
       day_of_week: body.day_of_week,
       time_slot: body.time_slot,
+      sort_order: body.sort_order ?? 0,
     })
     .select('*, activity:activities(*)')
     .single()
@@ -45,12 +47,27 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   const body = await request.json()
 
+  // Batch reorder: update sort_order for multiple entries
+  if (body.reorder && Array.isArray(body.reorder)) {
+    const updates = body.reorder as { id: string; sort_order: number }[]
+    for (const item of updates) {
+      await supabase
+        .from('calendar_entries')
+        .update({ sort_order: item.sort_order })
+        .eq('id', item.id)
+    }
+    return NextResponse.json({ success: true })
+  }
+
+  // Single entry move
+  const updateData: Record<string, unknown> = {}
+  if (body.day_of_week !== undefined) updateData.day_of_week = body.day_of_week
+  if (body.time_slot !== undefined) updateData.time_slot = body.time_slot
+  if (body.sort_order !== undefined) updateData.sort_order = body.sort_order
+
   const { data, error } = await supabase
     .from('calendar_entries')
-    .update({
-      day_of_week: body.day_of_week,
-      time_slot: body.time_slot,
-    })
+    .update(updateData)
     .eq('id', body.id)
     .select('*, activity:activities(*)')
     .single()

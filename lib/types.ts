@@ -16,6 +16,7 @@ export interface CalendarEntry {
   week_start: string // ISO date string (Monday)
   day_of_week: number // 0=Mon, 6=Sun
   time_slot: TimeSlot
+  sort_order: number
   created_at: string
 }
 

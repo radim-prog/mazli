@@ -1,6 +1,7 @@
 'use client'
 
 import { useDroppable } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CalendarEntryWithActivity, TimeSlot as TimeSlotType } from '@/lib/types'
 import PlacedActivity from './PlacedActivity'
 
@@ -21,6 +22,8 @@ export default function TimeSlot({ dayIndex, timeSlot, entries, onRemoveEntry }:
   // Morning items align toward lunch (bottom), afternoon toward lunch (top)
   const alignment = timeSlot === 'morning' ? 'justify-end' : 'justify-start'
 
+  const sortableIds = entries.map((e) => `entry-${e.id}`)
+
   return (
     <div
       ref={setNodeRef}
@@ -32,16 +35,18 @@ export default function TimeSlot({ dayIndex, timeSlot, entries, onRemoveEntry }:
       <div className="min-h-[20px] shrink-0" />
 
       {/* Entries that stretch to fill */}
-      <div className={`flex flex-col gap-2 flex-1 ${alignment}`}>
-        {entries.map((entry) => (
-          <PlacedActivity
-            key={entry.id}
-            activity={entry.activity}
-            entryId={entry.id}
-            onRemove={onRemoveEntry}
-          />
-        ))}
-      </div>
+      <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+        <div className={`flex flex-col gap-2 flex-1 ${alignment}`}>
+          {entries.map((entry) => (
+            <PlacedActivity
+              key={entry.id}
+              activity={entry.activity}
+              entryId={entry.id}
+              onRemove={onRemoveEntry}
+            />
+          ))}
+        </div>
+      </SortableContext>
 
       {/* Drop padding zone (near lunch) */}
       <div className="min-h-[20px] shrink-0" />
