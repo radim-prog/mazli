@@ -1,26 +1,51 @@
 'use client'
 
-import { useState } from 'react'
-import { DEFAULT_CATEGORIES } from '@/lib/types'
+import { useState, useEffect } from 'react'
+import { Activity, DEFAULT_CATEGORIES } from '@/lib/types'
 
 interface AddActivityDialogProps {
   isOpen: boolean
   existingCategories: string[]
+  editingActivity?: Activity | null
   onClose: () => void
   onAdd: (activity: { name: string; emoji: string; category: string; color: string }) => void
+  onEdit: (id: string, activity: { name: string; emoji: string; category: string; color: string }) => void
 }
 
 const PRESET_COLORS = ['#22c55e', '#a855f7', '#3b82f6', '#f59e0b', '#6b7280', '#ef4444', '#ec4899', '#14b8a6', '#f97316']
 
-const COMMON_EMOJIS = ['🎪', '🎭', '🏰', '⛲', '🎠', '🧸', '🎈', '🌈', '🦋', '🐶', '🐱', '🎵', '✂️', '🖍️', '⚽', '🎯', '🧁', '🌺']
+const EMOJI_GROUPS = {
+  'Venku': ['🏊', '🛝', '🚶', '🌳', '🚲', '⛲', '🌊', '🏖️', '⛺', '🦆', '🌻', '☀️'],
+  'Lidi': ['👵', '👴', '👨‍👩‍👧', '👶', '🧒', '👧', '🤱', '🧑‍🤝‍🧑', '👩‍👦', '🐶', '🐱', '🐰'],
+  'Aktivity': ['🎨', '🎵', '🤸', '📖', '🧩', '🎬', '🍪', '✂️', '🖍️', '⚽', '🎯', '🧸'],
+  'Místa': ['🏰', '🎪', '🎭', '🎠', '🏥', '🛒', '🏠', '🎈', '🌈', '🦋', '🌺', '🧁'],
+}
 
-export default function AddActivityDialog({ isOpen, existingCategories, onClose, onAdd }: AddActivityDialogProps) {
+export default function AddActivityDialog({ isOpen, existingCategories, editingActivity, onClose, onAdd, onEdit }: AddActivityDialogProps) {
   const [name, setName] = useState('')
   const [emoji, setEmoji] = useState('🎪')
   const [category, setCategory] = useState('outdoor')
   const [newCategoryName, setNewCategoryName] = useState('')
   const [newCategoryColor, setNewCategoryColor] = useState('#14b8a6')
   const [showNewCategory, setShowNewCategory] = useState(false)
+
+  const isEditing = !!editingActivity
+
+  // Pre-fill when editing
+  useEffect(() => {
+    if (editingActivity) {
+      setName(editingActivity.name)
+      setEmoji(editingActivity.emoji)
+      setCategory(editingActivity.category)
+      setShowNewCategory(false)
+    } else {
+      setName('')
+      setEmoji('🎪')
+      setCategory('outdoor')
+      setShowNewCategory(false)
+      setNewCategoryName('')
+    }
+  }, [editingActivity, isOpen])
 
   if (!isOpen) return null
 
@@ -49,22 +74,24 @@ export default function AddActivityDialog({ isOpen, existingCategories, onClose,
       finalColor = newCategoryColor
     }
 
-    onAdd({ name: name.trim(), emoji, category: finalCategory, color: finalColor })
-    setName('')
-    setEmoji('🎪')
-    setCategory('outdoor')
-    setNewCategoryName('')
-    setShowNewCategory(false)
+    if (isEditing) {
+      onEdit(editingActivity.id, { name: name.trim(), emoji, category: finalCategory, color: finalColor })
+    } else {
+      onAdd({ name: name.trim(), emoji, category: finalCategory, color: finalColor })
+    }
+
     onClose()
   }
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div
-        className="bg-white rounded-xl shadow-xl max-w-sm w-full p-5 max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-xl shadow-xl max-w-md w-full p-5 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-bold text-gray-800 mb-4">Nová aktivita</h2>
+        <h2 className="text-lg font-bold text-gray-800 mb-4">
+          {isEditing ? 'Upravit aktivitu' : 'Nová aktivita'}
+        </h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Name */}
@@ -80,23 +107,30 @@ export default function AddActivityDialog({ isOpen, existingCategories, onClose,
             />
           </div>
 
-          {/* Emoji picker */}
+          {/* Emoji picker - grouped */}
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-1">Ikona</label>
-            <div className="flex flex-wrap gap-1.5">
-              {COMMON_EMOJIS.map((e) => (
-                <button
-                  key={e}
-                  type="button"
-                  onClick={() => setEmoji(e)}
-                  className={`w-9 h-9 text-lg rounded-lg transition-all ${
-                    emoji === e
-                      ? 'bg-blue-100 ring-2 ring-blue-400 scale-110'
-                      : 'bg-gray-50 hover:bg-gray-100'
-                  }`}
-                >
-                  {e}
-                </button>
+            <div className="flex flex-col gap-2">
+              {Object.entries(EMOJI_GROUPS).map(([group, emojis]) => (
+                <div key={group}>
+                  <div className="text-xs text-gray-400 mb-1">{group}</div>
+                  <div className="flex flex-wrap gap-1">
+                    {emojis.map((e) => (
+                      <button
+                        key={e}
+                        type="button"
+                        onClick={() => setEmoji(e)}
+                        className={`w-9 h-9 text-lg rounded-lg transition-all ${
+                          emoji === e
+                            ? 'bg-blue-100 ring-2 ring-blue-400 scale-110'
+                            : 'bg-gray-50 hover:bg-gray-100'
+                        }`}
+                      >
+                        {e}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -133,7 +167,6 @@ export default function AddActivityDialog({ isOpen, existingCategories, onClose,
               </button>
             </div>
 
-            {/* New category inputs */}
             {showNewCategory && (
               <div className="mt-2 p-2.5 bg-gray-50 rounded-lg flex flex-col gap-2">
                 <input
@@ -189,7 +222,7 @@ export default function AddActivityDialog({ isOpen, existingCategories, onClose,
               disabled={!name.trim() || (showNewCategory && !newCategoryName.trim())}
               className="px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-colors"
             >
-              Přidat
+              {isEditing ? 'Uložit' : 'Přidat'}
             </button>
           </div>
         </form>

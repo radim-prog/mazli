@@ -24,6 +24,7 @@ export default function Home() {
   const [entries, setEntries] = useState<CalendarEntryWithActivity[]>([])
   const [activeActivity, setActiveActivity] = useState<Activity | null>(null)
   const [showAddDialog, setShowAddDialog] = useState(false)
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null)
   const [loading, setLoading] = useState(true)
 
   const sensors = useSensors(
@@ -172,6 +173,26 @@ export default function Home() {
     }
   }
 
+  // Edit existing activity
+  const handleEditActivity = async (id: string, data: { name: string; emoji: string; category: string; color: string }) => {
+    const old = activities.find((a) => a.id === id)
+    // Optimistic
+    setActivities((prev) => prev.map((a) => a.id === id ? { ...a, ...data } : a))
+    setEntries((prev) => prev.map((e) => e.activity_id === id ? { ...e, activity: { ...e.activity, ...data } } : e))
+
+    try {
+      const res = await fetch('/api/activities', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, ...data }),
+      })
+      const updated = await res.json()
+      setActivities((prev) => prev.map((a) => a.id === id ? updated : a))
+    } catch {
+      if (old) setActivities((prev) => prev.map((a) => a.id === id ? old : a))
+    }
+  }
+
   // Add custom activity
   const handleAddActivity = async (data: { name: string; emoji: string; category: string; color: string }) => {
     try {
@@ -217,7 +238,8 @@ export default function Home() {
               </h2>
               <ActivitySidebar
                 activities={activities}
-                onAddClick={() => setShowAddDialog(true)}
+                onAddClick={() => { setEditingActivity(null); setShowAddDialog(true) }}
+                onEditActivity={(a) => { setEditingActivity(a); setShowAddDialog(true) }}
                 onDeleteActivity={handleDeleteActivity}
               />
             </div>
@@ -260,8 +282,10 @@ export default function Home() {
         <AddActivityDialog
           isOpen={showAddDialog}
           existingCategories={existingCategories}
-          onClose={() => setShowAddDialog(false)}
+          editingActivity={editingActivity}
+          onClose={() => { setShowAddDialog(false); setEditingActivity(null) }}
           onAdd={handleAddActivity}
+          onEdit={handleEditActivity}
         />
 
         {/* Auto-save indicator */}

@@ -7,33 +7,27 @@ import ActivityTile from './ActivityTile'
 interface ActivitySidebarProps {
   activities: Activity[]
   onAddClick: () => void
+  onEditActivity: (activity: Activity) => void
   onDeleteActivity: (id: string) => void
 }
 
-export default function ActivitySidebar({ activities, onAddClick, onDeleteActivity }: ActivitySidebarProps) {
+export default function ActivitySidebar({ activities, onAddClick, onEditActivity, onDeleteActivity }: ActivitySidebarProps) {
   const [editMode, setEditMode] = useState(false)
 
-  // Group by category
   const grouped = activities.reduce<Record<string, Activity[]>>((acc, act) => {
     if (!acc[act.category]) acc[act.category] = []
     acc[act.category].push(act)
     return acc
   }, {})
 
-  // Build category order: defaults first, then any custom ones
   const defaultOrder = Object.keys(DEFAULT_CATEGORIES)
   const customCategories = Object.keys(grouped).filter((c) => !defaultOrder.includes(c))
   const categoryOrder = [...defaultOrder, ...customCategories]
 
-  const getCategoryLabel = (cat: string) => {
-    return DEFAULT_CATEGORIES[cat]?.label ?? cat
-  }
-
+  const getCategoryLabel = (cat: string) => DEFAULT_CATEGORIES[cat]?.label ?? cat
   const getCategoryColor = (cat: string) => {
     if (DEFAULT_CATEGORIES[cat]) return DEFAULT_CATEGORIES[cat].color
-    // For custom categories, use the color from the first activity
-    const first = grouped[cat]?.[0]
-    return first?.color ?? '#6b7280'
+    return grouped[cat]?.[0]?.color ?? '#6b7280'
   }
 
   return (
@@ -54,6 +48,7 @@ export default function ActivitySidebar({ activities, onAddClick, onDeleteActivi
                 <ActivityTile
                   key={activity.id}
                   activity={activity}
+                  onEdit={editMode ? onEditActivity : undefined}
                   onDelete={editMode ? onDeleteActivity : undefined}
                 />
               ))}
