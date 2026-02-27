@@ -37,11 +37,11 @@ export default function PlacedActivity({ activity, entryId, onRemove, onRepeat }
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className="activity-tile flex-1 flex flex-col items-center justify-center gap-1 px-2 py-3 rounded-xl group relative cursor-grab active:cursor-grabbing select-none min-h-0"
+      className="activity-tile flex-1 flex flex-col items-center justify-center gap-0.5 sm:gap-1 px-1 py-1 sm:px-2 sm:py-2 lg:py-3 rounded-lg sm:rounded-xl group relative cursor-grab active:cursor-grabbing select-none min-h-0"
       style={style}
     >
-      <span className="text-4xl" role="img">{activity.emoji}</span>
-      <span className="font-semibold text-gray-700 text-base text-center leading-tight">{activity.name}</span>
+      <span className="text-lg sm:text-2xl lg:text-4xl" role="img">{activity.emoji}</span>
+      <span className="font-semibold text-gray-700 text-[10px] sm:text-xs lg:text-base text-center leading-tight truncate w-full">{activity.name}</span>
 
       {/* Remove button */}
       <button
@@ -51,7 +51,7 @@ export default function PlacedActivity({ activity, entryId, onRemove, onRepeat }
           onRemove(entryId)
         }}
         onPointerDown={(e) => e.stopPropagation()}
-        className="opacity-0 group-hover:opacity-100 absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-400 hover:bg-red-500 text-white rounded-full text-sm flex items-center justify-center transition-opacity shadow"
+        className="opacity-0 group-hover:opacity-100 absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 w-5 h-5 sm:w-6 sm:h-6 bg-red-400 hover:bg-red-500 text-white rounded-full text-xs flex items-center justify-center transition-opacity shadow"
         aria-label="Odebrat"
       >
         &times;
@@ -65,7 +65,7 @@ export default function PlacedActivity({ activity, entryId, onRemove, onRepeat }
           onRepeat(entryId)
         }}
         onPointerDown={(e) => e.stopPropagation()}
-        className="opacity-0 group-hover:opacity-100 absolute -top-1.5 -left-1.5 w-6 h-6 bg-blue-400 hover:bg-blue-500 text-white rounded-full text-xs flex items-center justify-center transition-opacity shadow"
+        className="opacity-0 group-hover:opacity-100 absolute -top-1 -left-1 sm:-top-1.5 sm:-left-1.5 w-5 h-5 sm:w-6 sm:h-6 bg-blue-400 hover:bg-blue-500 text-white rounded-full text-[8px] sm:text-xs flex items-center justify-center transition-opacity shadow"
         aria-label="Opakovat"
       >
         🔁

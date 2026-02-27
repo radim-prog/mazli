@@ -30,7 +30,7 @@ export default function ActivityTile({ activity, onEdit, onDelete }: ActivityTil
         ref={setNodeRef}
         {...(isEditMode ? {} : listeners)}
         {...(isEditMode ? {} : attributes)}
-        className={`activity-tile flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg select-none transition-shadow hover:shadow-md text-sm flex-1 ${
+        className={`activity-tile flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg select-none transition-shadow hover:shadow-md text-xs sm:text-sm flex-1 ${
           isEditMode ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'
         }`}
         style={{
@@ -39,7 +39,7 @@ export default function ActivityTile({ activity, onEdit, onDelete }: ActivityTil
           borderLeft: `3px solid ${activity.color}`,
         }}
       >
-        <span className="text-xl shrink-0" role="img">{activity.emoji}</span>
+        <span className="text-base sm:text-xl shrink-0" role="img">{activity.emoji}</span>
         <span className="font-medium text-gray-700 truncate">{activity.name}</span>
       </div>
       {isEditMode && (
