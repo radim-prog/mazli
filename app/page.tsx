@@ -77,34 +77,72 @@ export default function Home() {
     const dropData = over.data.current as { dayIndex: number; timeSlot: string } | undefined
     if (!dropData) return
 
-    // Optimistic update
-    const tempId = `temp-${Date.now()}`
-    const optimisticEntry: CalendarEntryWithActivity = {
-      id: tempId,
-      activity_id: activity.id,
-      week_start: formatDate(weekStart),
-      day_of_week: dropData.dayIndex,
-      time_slot: dropData.timeSlot as 'morning' | 'afternoon',
-      created_at: new Date().toISOString(),
-      activity,
-    }
-    setEntries((prev) => [...prev, optimisticEntry])
+    const isMove = active.data.current?.isMove === true
+    const existingEntryId = active.data.current?.entryId as string | undefined
 
-    try {
-      const res = await fetch('/api/entries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          activity_id: activity.id,
-          week_start: formatDate(weekStart),
-          day_of_week: dropData.dayIndex,
-          time_slot: dropData.timeSlot,
-        }),
-      })
-      const saved = await res.json()
-      setEntries((prev) => prev.map((e) => (e.id === tempId ? saved : e)))
-    } catch {
-      setEntries((prev) => prev.filter((e) => e.id !== tempId))
+    if (isMove && existingEntryId) {
+      // Moving an existing entry to a new slot
+      const oldEntry = entries.find((e) => e.id === existingEntryId)
+      if (!oldEntry) return
+
+      // Skip if dropped on the same slot
+      if (oldEntry.day_of_week === dropData.dayIndex && oldEntry.time_slot === dropData.timeSlot) return
+
+      // Optimistic update
+      setEntries((prev) =>
+        prev.map((e) =>
+          e.id === existingEntryId
+            ? { ...e, day_of_week: dropData.dayIndex, time_slot: dropData.timeSlot as 'morning' | 'afternoon' }
+            : e
+        )
+      )
+
+      try {
+        const res = await fetch('/api/entries', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: existingEntryId,
+            day_of_week: dropData.dayIndex,
+            time_slot: dropData.timeSlot,
+          }),
+        })
+        const saved = await res.json()
+        setEntries((prev) => prev.map((e) => (e.id === existingEntryId ? saved : e)))
+      } catch {
+        // Revert
+        if (oldEntry) setEntries((prev) => prev.map((e) => (e.id === existingEntryId ? oldEntry : e)))
+      }
+    } else {
+      // New entry from sidebar
+      const tempId = `temp-${Date.now()}`
+      const optimisticEntry: CalendarEntryWithActivity = {
+        id: tempId,
+        activity_id: activity.id,
+        week_start: formatDate(weekStart),
+        day_of_week: dropData.dayIndex,
+        time_slot: dropData.timeSlot as 'morning' | 'afternoon',
+        created_at: new Date().toISOString(),
+        activity,
+      }
+      setEntries((prev) => [...prev, optimisticEntry])
+
+      try {
+        const res = await fetch('/api/entries', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            activity_id: activity.id,
+            week_start: formatDate(weekStart),
+            day_of_week: dropData.dayIndex,
+            time_slot: dropData.timeSlot,
+          }),
+        })
+        const saved = await res.json()
+        setEntries((prev) => prev.map((e) => (e.id === tempId ? saved : e)))
+      } catch {
+        setEntries((prev) => prev.filter((e) => e.id !== tempId))
+      }
     }
   }
 

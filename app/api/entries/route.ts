@@ -42,6 +42,26 @@ export async function POST(request: Request) {
   return NextResponse.json(data)
 }
 
+export async function PATCH(request: Request) {
+  const body = await request.json()
+
+  const { data, error } = await supabase
+    .from('calendar_entries')
+    .update({
+      day_of_week: body.day_of_week,
+      time_slot: body.time_slot,
+    })
+    .eq('id', body.id)
+    .select('*, activity:activities(*)')
+    .single()
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json(data)
+}
+
 export async function DELETE(request: NextRequest) {
   const id = request.nextUrl.searchParams.get('id')
 
