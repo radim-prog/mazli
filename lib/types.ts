@@ -1,5 +1,3 @@
-export type Category = 'outdoor' | 'visits' | 'classes' | 'home' | 'errands'
-
 export type TimeSlot = 'morning' | 'afternoon'
 
 export interface Activity {
@@ -7,7 +5,7 @@ export interface Activity {
   name: string
   emoji: string
   color: string
-  category: Category
+  category: string
   sort_order: number
   created_at: string
 }
@@ -25,12 +23,12 @@ export interface CalendarEntryWithActivity extends CalendarEntry {
   activity: Activity
 }
 
-export const CATEGORY_LABELS: Record<Category, string> = {
-  outdoor: 'Venku',
-  visits: 'Návštěvy',
-  classes: 'Kroužky',
-  home: 'Doma',
-  errands: 'Pochůzky',
+export const DEFAULT_CATEGORIES: Record<string, { label: string; color: string }> = {
+  outdoor: { label: 'Venku', color: '#22c55e' },
+  visits: { label: 'Návštěvy', color: '#a855f7' },
+  classes: { label: 'Kroužky', color: '#3b82f6' },
+  home: { label: 'Doma', color: '#f59e0b' },
+  errands: { label: 'Pochůzky', color: '#6b7280' },
 }
 
 export const DAY_NAMES = ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'] as const

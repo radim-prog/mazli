@@ -1,21 +1,40 @@
 'use client'
 
-import { Activity, Category, CATEGORY_LABELS } from '@/lib/types'
+import { useState } from 'react'
+import { Activity, DEFAULT_CATEGORIES } from '@/lib/types'
 import ActivityTile from './ActivityTile'
 
 interface ActivitySidebarProps {
   activities: Activity[]
   onAddClick: () => void
+  onDeleteActivity: (id: string) => void
 }
 
-export default function ActivitySidebar({ activities, onAddClick }: ActivitySidebarProps) {
+export default function ActivitySidebar({ activities, onAddClick, onDeleteActivity }: ActivitySidebarProps) {
+  const [editMode, setEditMode] = useState(false)
+
+  // Group by category
   const grouped = activities.reduce<Record<string, Activity[]>>((acc, act) => {
     if (!acc[act.category]) acc[act.category] = []
     acc[act.category].push(act)
     return acc
   }, {})
 
-  const categoryOrder: Category[] = ['outdoor', 'visits', 'classes', 'home', 'errands']
+  // Build category order: defaults first, then any custom ones
+  const defaultOrder = Object.keys(DEFAULT_CATEGORIES)
+  const customCategories = Object.keys(grouped).filter((c) => !defaultOrder.includes(c))
+  const categoryOrder = [...defaultOrder, ...customCategories]
+
+  const getCategoryLabel = (cat: string) => {
+    return DEFAULT_CATEGORIES[cat]?.label ?? cat
+  }
+
+  const getCategoryColor = (cat: string) => {
+    if (DEFAULT_CATEGORIES[cat]) return DEFAULT_CATEGORIES[cat].color
+    // For custom categories, use the color from the first activity
+    const first = grouped[cat]?.[0]
+    return first?.color ?? '#6b7280'
+  }
 
   return (
     <div className="sidebar-scroll flex flex-col gap-3 overflow-y-auto lg:overflow-y-auto lg:max-h-[calc(100vh-120px)] overflow-x-auto lg:overflow-x-visible pb-2">
@@ -26,26 +45,43 @@ export default function ActivitySidebar({ activities, onAddClick }: ActivitySide
           <div key={cat}>
             <div
               className="text-xs font-semibold uppercase tracking-wide mb-1.5 px-1"
-              style={{ color: items[0].color }}
+              style={{ color: getCategoryColor(cat) }}
             >
-              {CATEGORY_LABELS[cat]}
+              {getCategoryLabel(cat)}
             </div>
             <div className="flex lg:flex-col gap-1.5 flex-row flex-nowrap lg:flex-wrap">
               {items.map((activity) => (
-                <ActivityTile key={activity.id} activity={activity} />
+                <ActivityTile
+                  key={activity.id}
+                  activity={activity}
+                  onDelete={editMode ? onDeleteActivity : undefined}
+                />
               ))}
             </div>
           </div>
         )
       })}
 
-      <button
-        onClick={onAddClick}
-        className="mt-1 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border-2 border-dashed border-gray-300 text-gray-400 hover:border-gray-400 hover:text-gray-500 transition-colors text-sm cursor-pointer"
-      >
-        <span className="text-lg leading-none">+</span>
-        <span>Přidat</span>
-      </button>
+      <div className="flex gap-1.5 mt-1">
+        <button
+          onClick={onAddClick}
+          className="flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border-2 border-dashed border-gray-300 text-gray-400 hover:border-gray-400 hover:text-gray-500 transition-colors text-sm cursor-pointer"
+        >
+          <span className="text-lg leading-none">+</span>
+          <span>Přidat</span>
+        </button>
+        <button
+          onClick={() => setEditMode(!editMode)}
+          className={`px-2.5 py-1.5 rounded-lg border-2 text-sm cursor-pointer transition-colors ${
+            editMode
+              ? 'border-red-300 bg-red-50 text-red-500'
+              : 'border-dashed border-gray-300 text-gray-400 hover:border-gray-400 hover:text-gray-500'
+          }`}
+          title={editMode ? 'Hotovo' : 'Upravit aktivity'}
+        >
+          {editMode ? '✓' : '✏️'}
+        </button>
+      </div>
     </div>
   )
 }

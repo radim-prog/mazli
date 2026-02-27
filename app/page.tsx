@@ -11,20 +11,12 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
-import { Activity, CalendarEntryWithActivity, Category } from '@/lib/types'
+import { Activity, CalendarEntryWithActivity } from '@/lib/types'
 import { getWeekStart, formatDate } from '@/lib/utils'
 import WeeklyCalendar from '@/components/WeeklyCalendar'
 import ActivitySidebar from '@/components/ActivitySidebar'
 import WeekNavigation from '@/components/WeekNavigation'
 import AddActivityDialog from '@/components/AddActivityDialog'
-
-const CATEGORY_COLORS: Record<Category, string> = {
-  outdoor: '#22c55e',
-  visits: '#a855f7',
-  classes: '#3b82f6',
-  home: '#f59e0b',
-  errands: '#6b7280',
-}
 
 export default function Home() {
   const [weekStart, setWeekStart] = useState(() => getWeekStart(new Date()))
@@ -110,37 +102,46 @@ export default function Home() {
         }),
       })
       const saved = await res.json()
-      // Replace temp entry with real one
       setEntries((prev) => prev.map((e) => (e.id === tempId ? saved : e)))
     } catch {
-      // Revert on error
       setEntries((prev) => prev.filter((e) => e.id !== tempId))
     }
   }
 
-  // Remove entry
+  // Remove calendar entry
   const handleRemoveEntry = async (entryId: string) => {
-    // Optimistic removal
     const removed = entries.find((e) => e.id === entryId)
     setEntries((prev) => prev.filter((e) => e.id !== entryId))
 
     try {
       await fetch(`/api/entries?id=${entryId}`, { method: 'DELETE' })
     } catch {
-      // Revert on error
       if (removed) setEntries((prev) => [...prev, removed])
     }
   }
 
+  // Delete activity from sidebar
+  const handleDeleteActivity = async (activityId: string) => {
+    const removed = activities.find((a) => a.id === activityId)
+    setActivities((prev) => prev.filter((a) => a.id !== activityId))
+    // Also remove any calendar entries for this activity
+    setEntries((prev) => prev.filter((e) => e.activity_id !== activityId))
+
+    try {
+      await fetch(`/api/activities?id=${activityId}`, { method: 'DELETE' })
+    } catch {
+      if (removed) setActivities((prev) => [...prev, removed])
+    }
+  }
+
   // Add custom activity
-  const handleAddActivity = async (data: { name: string; emoji: string; category: Category }) => {
+  const handleAddActivity = async (data: { name: string; emoji: string; category: string; color: string }) => {
     try {
       const res = await fetch('/api/activities', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          color: CATEGORY_COLORS[data.category],
           sort_order: activities.length + 1,
         }),
       })
@@ -151,6 +152,9 @@ export default function Home() {
     }
   }
 
+  // Collect existing categories
+  const existingCategories = [...new Set(activities.map((a) => a.category))]
+
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="min-h-screen flex flex-col">
@@ -159,7 +163,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2">
             <h1 className="text-xl font-bold text-amber-800 flex items-center gap-2">
               <span className="text-2xl">🐻</span>
-              Mazlíkův týden
+              Mazlinčin týden
             </h1>
             <WeekNavigation weekStart={weekStart} onWeekChange={setWeekStart} />
           </div>
@@ -167,13 +171,17 @@ export default function Home() {
 
         {/* Main content */}
         <main className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full p-3 gap-3">
-          {/* Sidebar - left on desktop, bottom on mobile */}
+          {/* Sidebar */}
           <aside className="order-2 lg:order-1 lg:w-48 xl:w-56 shrink-0">
             <div className="lg:sticky lg:top-3">
               <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2 hidden lg:block">
                 Aktivity
               </h2>
-              <ActivitySidebar activities={activities} onAddClick={() => setShowAddDialog(true)} />
+              <ActivitySidebar
+                activities={activities}
+                onAddClick={() => setShowAddDialog(true)}
+                onDeleteActivity={handleDeleteActivity}
+              />
             </div>
           </aside>
 
@@ -213,9 +221,15 @@ export default function Home() {
         {/* Add activity dialog */}
         <AddActivityDialog
           isOpen={showAddDialog}
+          existingCategories={existingCategories}
           onClose={() => setShowAddDialog(false)}
           onAdd={handleAddActivity}
         />
+
+        {/* Auto-save indicator */}
+        <div className="fixed bottom-3 right-3 text-xs text-gray-400 bg-white/80 px-2 py-1 rounded-full shadow-sm">
+          Automatické ukládání
+        </div>
       </div>
     </DndContext>
   )

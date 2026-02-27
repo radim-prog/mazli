@@ -1,10 +1,8 @@
-import { Category } from './types'
-
 interface DefaultActivity {
   name: string
   emoji: string
   color: string
-  category: Category
+  category: string
   sort_order: number
 }
 
@@ -23,17 +21,16 @@ export const DEFAULT_ACTIVITIES: DefaultActivity[] = [
 
   // Kroužky (classes) - modrá
   { name: 'Tvoření', emoji: '🎨', color: '#3b82f6', category: 'classes', sort_order: 9 },
-  { name: 'Knihovna', emoji: '📚', color: '#3b82f6', category: 'classes', sort_order: 10 },
-  { name: 'Hudba', emoji: '🎵', color: '#3b82f6', category: 'classes', sort_order: 11 },
-  { name: 'Cvičení', emoji: '🤸', color: '#3b82f6', category: 'classes', sort_order: 12 },
+  { name: 'Hudba', emoji: '🎵', color: '#3b82f6', category: 'classes', sort_order: 10 },
+  { name: 'Cvičení', emoji: '🤸', color: '#3b82f6', category: 'classes', sort_order: 11 },
 
   // Doma (home) - žlutá
-  { name: 'Volný den', emoji: '🏠', color: '#f59e0b', category: 'home', sort_order: 13 },
-  { name: 'Hry', emoji: '🧩', color: '#f59e0b', category: 'home', sort_order: 14 },
-  { name: 'Pohádky', emoji: '🎬', color: '#f59e0b', category: 'home', sort_order: 15 },
-  { name: 'Pečení', emoji: '🍪', color: '#f59e0b', category: 'home', sort_order: 16 },
+  { name: 'Volný den', emoji: '🏠', color: '#f59e0b', category: 'home', sort_order: 12 },
+  { name: 'Hry', emoji: '🧩', color: '#f59e0b', category: 'home', sort_order: 13 },
+  { name: 'Pohádky', emoji: '🎬', color: '#f59e0b', category: 'home', sort_order: 14 },
+  { name: 'Pečení', emoji: '🍪', color: '#f59e0b', category: 'home', sort_order: 15 },
 
   // Pochůzky (errands) - šedá
-  { name: 'Nákup', emoji: '🛒', color: '#6b7280', category: 'errands', sort_order: 17 },
-  { name: 'Doktor', emoji: '🏥', color: '#6b7280', category: 'errands', sort_order: 18 },
+  { name: 'Nákup', emoji: '🛒', color: '#6b7280', category: 'errands', sort_order: 16 },
+  { name: 'Doktor', emoji: '🏥', color: '#6b7280', category: 'errands', sort_order: 17 },
 ]

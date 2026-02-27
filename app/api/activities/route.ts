@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { DEFAULT_ACTIVITIES } from '@/lib/default-activities'
 
@@ -48,4 +48,23 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json(data)
+}
+
+export async function DELETE(request: NextRequest) {
+  const id = request.nextUrl.searchParams.get('id')
+
+  if (!id) {
+    return NextResponse.json({ error: 'id is required' }, { status: 400 })
+  }
+
+  // Delete related calendar entries first (cascade should handle this, but just in case)
+  await supabase.from('calendar_entries').delete().eq('activity_id', id)
+
+  const { error } = await supabase.from('activities').delete().eq('id', id)
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ success: true })
 }
