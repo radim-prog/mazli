@@ -18,14 +18,14 @@ export default function DayColumn({ dayIndex, entries, onRemoveEntry }: DayColum
   return (
     <div className={`flex flex-col min-w-[100px] ${isWeekend ? 'bg-orange-50/40' : ''} rounded-lg`}>
       {/* Day header */}
-      <div className={`text-center py-1.5 font-semibold text-sm ${
+      <div className={`text-center py-2.5 font-bold text-base ${
         isWeekend ? 'text-orange-600' : 'text-gray-600'
       }`}>
         {DAY_NAMES[dayIndex]}
       </div>
 
       {/* Morning slot */}
-      <div className="px-1 pb-0.5">
+      <div className="px-1.5 pb-1 flex-1 flex flex-col">
         <TimeSlot
           dayIndex={dayIndex}
           timeSlot="morning"
@@ -35,12 +35,12 @@ export default function DayColumn({ dayIndex, entries, onRemoveEntry }: DayColum
       </div>
 
       {/* Lunch divider */}
-      <div className="lunch-divider mx-1 py-0.5 text-center">
-        <span className="text-xs text-orange-400">🍽 😴</span>
+      <div className="lunch-divider mx-1.5 py-1.5 text-center rounded">
+        <span className="text-sm text-orange-400">🍽 😴</span>
       </div>
 
       {/* Afternoon slot */}
-      <div className="px-1 pt-0.5">
+      <div className="px-1.5 pt-1 flex-1 flex flex-col">
         <TimeSlot
           dayIndex={dayIndex}
           timeSlot="afternoon"

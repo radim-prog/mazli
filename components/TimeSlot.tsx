@@ -21,7 +21,7 @@ export default function TimeSlot({ dayIndex, timeSlot, entries, onRemoveEntry }:
   return (
     <div
       ref={setNodeRef}
-      className={`min-h-[100px] p-1.5 rounded-md transition-colors flex flex-col gap-1 ${
+      className={`min-h-[180px] flex-1 p-2 rounded-lg transition-colors flex flex-col gap-1.5 ${
         isOver ? 'bg-blue-100 ring-2 ring-blue-300' : 'bg-white/60'
       }`}
     >

@@ -186,16 +186,16 @@ export default function Home() {
           </aside>
 
           {/* Calendar grid */}
-          <section className="order-1 lg:order-2 flex-1 min-w-0">
+          <section className="order-1 lg:order-2 flex-1 min-w-0 flex flex-col">
             {loading && entries.length === 0 ? (
-              <div className="flex items-center justify-center h-64 text-gray-400">
+              <div className="flex items-center justify-center flex-1 text-gray-400">
                 <div className="text-center">
-                  <div className="text-3xl mb-2 animate-bounce">🐻</div>
+                  <div className="text-4xl mb-2 animate-bounce">🐻</div>
                   <div className="text-sm">Načítám...</div>
                 </div>
               </div>
             ) : (
-              <div className="bg-white/50 rounded-xl border border-gray-200/50 p-2 shadow-sm">
+              <div className="bg-white/50 rounded-xl border border-gray-200/50 p-3 shadow-sm flex-1 flex flex-col min-h-[calc(100vh-100px)]">
                 <WeeklyCalendar entries={entries} onRemoveEntry={handleRemoveEntry} />
               </div>
             )}

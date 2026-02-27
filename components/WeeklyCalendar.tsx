@@ -10,7 +10,7 @@ interface WeeklyCalendarProps {
 
 export default function WeeklyCalendar({ entries, onRemoveEntry }: WeeklyCalendarProps) {
   return (
-    <div className="grid grid-cols-7 gap-1 flex-1">
+    <div className="grid grid-cols-7 gap-1.5 flex-1 h-full">
       {[0, 1, 2, 3, 4, 5, 6].map((dayIndex) => (
         <DayColumn
           key={dayIndex}
