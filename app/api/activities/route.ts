@@ -16,7 +16,7 @@ export async function GET() {
   if (data.length === 0) {
     const { data: seeded, error: seedError } = await supabase
       .from('activities')
-      .insert(DEFAULT_ACTIVITIES)
+      .upsert(DEFAULT_ACTIVITIES, { onConflict: 'name,category', ignoreDuplicates: true })
       .select()
 
     if (seedError) {
