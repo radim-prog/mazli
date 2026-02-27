@@ -24,20 +24,30 @@ export default function TimeSlot({ dayIndex, timeSlot, entries, onRemoveEntry }:
   return (
     <div
       ref={setNodeRef}
-      className={`min-h-[180px] flex-1 p-2 rounded-lg transition-colors flex flex-col gap-2 ${alignment} ${
+      className={`min-h-[180px] flex-1 p-2 rounded-lg transition-colors flex flex-col ${alignment} ${
         isOver ? 'bg-blue-100 ring-2 ring-blue-300' : 'bg-white/60'
       }`}
     >
-      {entries.map((entry) => (
-        <PlacedActivity
-          key={entry.id}
-          activity={entry.activity}
-          entryId={entry.id}
-          onRemove={onRemoveEntry}
-        />
-      ))}
+      {/* Drop padding zone (away from lunch) */}
+      <div className="min-h-[20px] shrink-0" />
+
+      {/* Entries that stretch to fill */}
+      <div className={`flex flex-col gap-2 flex-1 ${alignment}`}>
+        {entries.map((entry) => (
+          <PlacedActivity
+            key={entry.id}
+            activity={entry.activity}
+            entryId={entry.id}
+            onRemove={onRemoveEntry}
+          />
+        ))}
+      </div>
+
+      {/* Drop padding zone (near lunch) */}
+      <div className="min-h-[20px] shrink-0" />
+
       {entries.length === 0 && isOver && (
-        <div className="flex-1 flex items-center justify-center text-blue-300 text-2xl">
+        <div className="absolute inset-0 flex items-center justify-center text-blue-300 text-2xl pointer-events-none">
           ↓
         </div>
       )}

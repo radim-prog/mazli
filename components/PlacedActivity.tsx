@@ -24,7 +24,7 @@ export default function PlacedActivity({ activity, entryId, onRemove }: PlacedAc
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className="activity-tile flex flex-col items-center justify-center gap-0.5 px-2 py-3 rounded-xl group relative cursor-grab active:cursor-grabbing select-none"
+      className="activity-tile flex-1 flex flex-col items-center justify-center gap-1 px-2 py-3 rounded-xl group relative cursor-grab active:cursor-grabbing select-none min-h-0"
       style={{
         ...style,
         backgroundColor: activity.color + '20',
@@ -32,7 +32,7 @@ export default function PlacedActivity({ activity, entryId, onRemove }: PlacedAc
         opacity: isDragging ? 0.3 : 1,
       }}
     >
-      <span className="text-2xl">{activity.emoji}</span>
+      <span className="text-3xl">{activity.emoji}</span>
       <span className="font-semibold text-gray-700 text-sm text-center leading-tight">{activity.name}</span>
       <button
         onClick={(e) => {
