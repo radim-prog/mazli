@@ -28,16 +28,16 @@ export default function TimeSlot({ dayIndex, timeSlot, entries, onRemoveEntry, o
   return (
     <div
       ref={setNodeRef}
-      className={`min-h-[80px] sm:min-h-[120px] lg:min-h-[180px] flex-1 p-1 sm:p-1.5 lg:p-2 rounded-lg transition-colors flex flex-col ${alignment} ${
+      className={`min-h-[80px] md:min-h-[180px] flex-1 p-1 md:p-2 rounded-lg transition-colors flex flex-col ${alignment} ${
         isOver ? 'bg-blue-100 ring-2 ring-blue-300' : 'bg-white/60'
       }`}
     >
       {/* Drop padding zone (away from lunch) */}
-      <div className="min-h-[8px] sm:min-h-[12px] lg:min-h-[20px] shrink-0" />
+      <div className="min-h-[8px] md:min-h-[20px] shrink-0" />
 
       {/* Entries that stretch to fill */}
       <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
-        <div className={`flex flex-col gap-1 sm:gap-1.5 lg:gap-2 flex-1 ${alignment}`}>
+        <div className={`flex flex-col gap-1 md:gap-2 flex-1 ${alignment}`}>
           {entries.map((entry) => (
             <PlacedActivity
               key={entry.id}
@@ -51,10 +51,10 @@ export default function TimeSlot({ dayIndex, timeSlot, entries, onRemoveEntry, o
       </SortableContext>
 
       {/* Drop padding zone (near lunch) */}
-      <div className="min-h-[8px] sm:min-h-[12px] lg:min-h-[20px] shrink-0" />
+      <div className="min-h-[8px] md:min-h-[20px] shrink-0" />
 
       {entries.length === 0 && isOver && (
-        <div className="absolute inset-0 flex items-center justify-center text-blue-300 text-xl sm:text-2xl pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center text-blue-300 text-2xl pointer-events-none">
           ↓
         </div>
       )}

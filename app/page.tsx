@@ -329,19 +329,19 @@ export default function Home() {
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="min-h-screen flex flex-col">
         {/* Header */}
-        <header className="bg-white/70 backdrop-blur-sm border-b border-amber-200/50 px-2 sm:px-4 py-1.5 sm:py-2 lg:py-3">
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-1 sm:gap-2">
-            <h1 className="text-sm sm:text-lg lg:text-xl font-bold text-amber-800 flex items-center gap-1 sm:gap-2 shrink-0">
-              <span className="text-base sm:text-xl lg:text-2xl">🐻</span>
-              <span className="hidden sm:inline">Mazlinčin týden</span>
-              <span className="sm:hidden">Mazlinka</span>
+        <header className="bg-white/70 backdrop-blur-sm border-b border-amber-200/50 px-2 md:px-4 py-1.5 md:py-3">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-1 md:gap-2">
+            <h1 className="text-sm md:text-xl font-bold text-amber-800 flex items-center gap-1 md:gap-2 shrink-0">
+              <span className="text-base md:text-2xl">🐻</span>
+              <span className="hidden md:inline">Mazlinčin týden</span>
+              <span className="md:hidden">Mazlinka</span>
             </h1>
             <WeekNavigation weekStart={weekStart} onWeekChange={setWeekStart} />
           </div>
         </header>
 
         {/* Main content */}
-        <main className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full p-1.5 sm:p-2 lg:p-3 gap-1.5 sm:gap-2 lg:gap-3">
+        <main className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full p-1 md:p-3 gap-1 md:gap-3">
           {/* Sidebar */}
           <aside className="order-2 lg:order-1 lg:w-48 xl:w-56 shrink-0">
             <div className="lg:sticky lg:top-3">
@@ -367,7 +367,7 @@ export default function Home() {
                 </div>
               </div>
             ) : (
-              <div className="bg-white/50 rounded-lg sm:rounded-xl border border-gray-200/50 p-1.5 sm:p-2 lg:p-3 shadow-sm flex-1 flex flex-col min-h-[calc(100vh-60px)] sm:min-h-[calc(100vh-80px)] lg:min-h-[calc(100vh-100px)]">
+              <div className="bg-white/50 rounded-lg md:rounded-xl border border-gray-200/50 p-1 md:p-3 shadow-sm flex-1 flex flex-col min-h-[calc(100vh-50px)] md:min-h-[calc(100vh-100px)]">
                 <WeeklyCalendar entries={entries} onRemoveEntry={handleRemoveEntry} onRepeatEntry={setRepeatEntryId} />
               </div>
             )}

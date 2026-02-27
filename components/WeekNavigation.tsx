@@ -13,24 +13,24 @@ export default function WeekNavigation({ weekStart, onWeekChange }: WeekNavigati
   const isCurrentWeek = formatDate(weekStart) === formatDate(getWeekStart(new Date()))
 
   return (
-    <div className="flex items-center gap-1 sm:gap-2 lg:gap-3">
+    <div className="flex items-center gap-1 md:gap-3">
       <button
         onClick={() => {
           const prev = new Date(weekStart)
           prev.setDate(prev.getDate() - 7)
           onWeekChange(prev)
         }}
-        className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-gray-500 hover:text-gray-800 hover:bg-white/80 rounded-md transition-colors text-base sm:text-lg"
+        className="px-1.5 md:px-2 py-0.5 md:py-1 text-gray-500 hover:text-gray-800 hover:bg-white/80 rounded-md transition-colors text-base md:text-lg"
         aria-label="Předchozí týden"
       >
         &larr;
       </button>
 
       <div className="text-center min-w-0">
-        <div className="font-bold text-gray-800 text-xs sm:text-sm lg:text-base">
-          <span className="hidden sm:inline">Týden </span>{weekNum}/{year}
+        <div className="font-bold text-gray-800 text-xs md:text-base">
+          <span className="hidden md:inline">Týden </span>{weekNum}/{year}
         </div>
-        <div className="text-[10px] sm:text-xs text-gray-500 truncate">
+        <div className="text-[10px] md:text-xs text-gray-500 truncate">
           {formatWeekRange(weekStart)}
         </div>
       </div>
@@ -41,7 +41,7 @@ export default function WeekNavigation({ weekStart, onWeekChange }: WeekNavigati
           next.setDate(next.getDate() + 7)
           onWeekChange(next)
         }}
-        className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-gray-500 hover:text-gray-800 hover:bg-white/80 rounded-md transition-colors text-base sm:text-lg"
+        className="px-1.5 md:px-2 py-0.5 md:py-1 text-gray-500 hover:text-gray-800 hover:bg-white/80 rounded-md transition-colors text-base md:text-lg"
         aria-label="Další týden"
       >
         &rarr;
@@ -50,7 +50,7 @@ export default function WeekNavigation({ weekStart, onWeekChange }: WeekNavigati
       {!isCurrentWeek && (
         <button
           onClick={() => onWeekChange(getWeekStart(new Date()))}
-          className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 bg-white/80 text-gray-500 hover:text-gray-800 rounded-md transition-colors"
+          className="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 bg-white/80 text-gray-500 hover:text-gray-800 rounded-md transition-colors"
         >
           Dnes
         </button>

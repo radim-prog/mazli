@@ -31,7 +31,7 @@ export default function ActivitySidebar({ activities, onAddClick, onEditActivity
   }
 
   return (
-    <div className="sidebar-scroll flex flex-col gap-2 sm:gap-3 overflow-y-auto lg:overflow-y-auto lg:max-h-[calc(100vh-120px)] overflow-x-auto lg:overflow-x-visible pb-2">
+    <div className="sidebar-scroll flex flex-col gap-2 md:gap-3 overflow-y-auto lg:overflow-y-auto lg:max-h-[calc(100vh-120px)] overflow-x-auto lg:overflow-x-visible pb-2">
       {categoryOrder.map((cat) => {
         const items = grouped[cat]
         if (!items || items.length === 0) return null
@@ -43,7 +43,7 @@ export default function ActivitySidebar({ activities, onAddClick, onEditActivity
             >
               {getCategoryLabel(cat)}
             </div>
-            <div className="flex lg:flex-col gap-1 sm:gap-1.5 flex-row flex-nowrap lg:flex-wrap">
+            <div className="flex lg:flex-col gap-1 md:gap-1.5 flex-row flex-nowrap lg:flex-wrap">
               {items.map((activity) => (
                 <ActivityTile
                   key={activity.id}
