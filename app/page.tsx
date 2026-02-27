@@ -34,7 +34,7 @@ export default function Home() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 350, tolerance: 10 } })
+    useSensor(TouchSensor, { activationConstraint: { delay: 1000, tolerance: 10 } })
   )
 
   // Fetch activities
