@@ -328,7 +328,7 @@ export default function Home() {
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="min-h-screen flex flex-col">
+      <div className="h-dvh flex flex-col overflow-hidden">
         {/* Header */}
         <header className="bg-white/70 backdrop-blur-sm border-b border-amber-200/50 px-2 md:px-4 py-1.5 md:py-3">
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-1 md:gap-2">
@@ -342,7 +342,7 @@ export default function Home() {
         </header>
 
         {/* Main content */}
-        <main className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full p-1 md:p-3 gap-1 md:gap-3">
+        <main className="flex-1 min-h-0 flex flex-col lg:flex-row max-w-7xl mx-auto w-full p-1 md:p-3 gap-1 md:gap-3">
           {/* Sidebar - hidden on mobile, overlay drawer */}
           <aside className="hidden lg:block lg:order-1 lg:w-48 xl:w-56 shrink-0">
             <div className="lg:sticky lg:top-3">
@@ -386,17 +386,19 @@ export default function Home() {
           )}
 
           {/* Calendar grid */}
-          <section className="flex-1 min-w-0 flex flex-col lg:order-2">
+          <section className="flex-1 min-h-0 min-w-0 lg:order-2">
             {loading && entries.length === 0 ? (
-              <div className="flex items-center justify-center flex-1 text-gray-400">
+              <div className="flex items-center justify-center h-full text-gray-400">
                 <div className="text-center">
                   <div className="text-4xl mb-2 animate-bounce">🐻</div>
                   <div className="text-sm">Načítám...</div>
                 </div>
               </div>
             ) : (
-              <div className="bg-white/50 rounded-lg md:rounded-xl border border-gray-200/50 p-1 md:p-3 shadow-sm flex flex-col h-[calc(100dvh-48px)] lg:h-[calc(100dvh-80px)]">
-                <WeeklyCalendar entries={entries} onRemoveEntry={handleRemoveEntry} onRepeatEntry={setRepeatEntryId} />
+              <div className="bg-white/50 rounded-lg md:rounded-xl border border-gray-200/50 shadow-sm relative h-full">
+                <div className="absolute inset-0 overflow-x-auto p-1 md:p-3">
+                  <WeeklyCalendar entries={entries} onRemoveEntry={handleRemoveEntry} onRepeatEntry={setRepeatEntryId} />
+                </div>
               </div>
             )}
           </section>

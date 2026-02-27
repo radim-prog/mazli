@@ -21,7 +21,7 @@ export default function DayColumn({ dayIndex, entries, onRemoveEntry, onRepeatEn
   const isWeekend = dayIndex >= 5
 
   return (
-    <div className={`flex flex-col min-w-0 ${isWeekend ? 'bg-orange-50/40' : ''} rounded-lg`}>
+    <div className={`flex flex-col min-w-0 h-full ${isWeekend ? 'bg-orange-50/40' : ''} rounded-lg`}>
       {/* Day header */}
       <div className={`text-center py-1 md:py-2.5 font-bold text-xs md:text-base ${
         isWeekend ? 'text-orange-600' : 'text-gray-600'

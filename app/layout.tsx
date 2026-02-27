@@ -23,7 +23,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="cs">
-      <body className="min-h-screen bg-amber-50/30">
+      <body className="h-dvh overflow-hidden bg-amber-50/30">
         {children}
       </body>
     </html>
