@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+:root {
+  --lunch-color: #fed7aa;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Smooth drag overlay */
+.drag-overlay {
+  cursor: grabbing;
+}
+
+/* Prevent text selection during drag */
+.dragging * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Touch action for better mobile DnD */
+.activity-tile {
+  touch-action: none;
+}
+
+/* Lunch divider styling */
+.lunch-divider {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--lunch-color) 10%,
+    var(--lunch-color) 90%,
+    transparent 100%
+  );
+}
+
+/* Scrollbar styling for sidebar */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 2px;
+}
