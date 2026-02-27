@@ -395,7 +395,7 @@ export default function Home() {
                 </div>
               </div>
             ) : (
-              <div className="bg-white/50 rounded-lg md:rounded-xl border border-gray-200/50 p-1 md:p-3 shadow-sm flex-1 flex flex-col h-[calc(100dvh-44px)] md:h-auto md:min-h-[calc(100vh-100px)]">
+              <div className="bg-white/50 rounded-lg md:rounded-xl border border-gray-200/50 p-1 md:p-3 shadow-sm flex flex-col h-[calc(100dvh-48px)] lg:h-[calc(100dvh-80px)]">
                 <WeeklyCalendar entries={entries} onRemoveEntry={handleRemoveEntry} onRepeatEntry={setRepeatEntryId} />
               </div>
             )}

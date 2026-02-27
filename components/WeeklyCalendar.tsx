@@ -11,8 +11,8 @@ interface WeeklyCalendarProps {
 
 export default function WeeklyCalendar({ entries, onRemoveEntry, onRepeatEntry }: WeeklyCalendarProps) {
   return (
-    <div className="flex-1 h-full overflow-x-auto">
-      <div className="grid grid-cols-7 gap-px md:gap-1.5 h-full min-w-[480px]">
+    <div className="flex-1 overflow-x-auto h-full">
+      <div className="grid grid-cols-7 gap-px md:gap-1.5 min-w-[480px] h-full">
         {[0, 1, 2, 3, 4, 5, 6].map((dayIndex) => (
           <DayColumn
             key={dayIndex}
