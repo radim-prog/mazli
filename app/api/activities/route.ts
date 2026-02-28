@@ -1,92 +1,114 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { notion, ACTIVITIES_DS, ENTRIES_DS, isFullPage, pageToActivity, activityProperties } from '@/lib/notion'
 import { DEFAULT_ACTIVITIES } from '@/lib/default-activities'
 
 export async function GET() {
-  const { data, error } = await supabase
-    .from('activities')
-    .select('*')
-    .order('sort_order', { ascending: true })
+  try {
+    const response = await notion.dataSources.query({
+      data_source_id: ACTIVITIES_DS,
+      sorts: [{ property: 'Sort Order', direction: 'ascending' }],
+    })
+    const activities = response.results.filter(isFullPage).map(pageToActivity)
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-
-  // If no activities exist, seed defaults
-  if (data.length === 0) {
-    const { data: seeded, error: seedError } = await supabase
-      .from('activities')
-      .upsert(DEFAULT_ACTIVITIES, { onConflict: 'name,category', ignoreDuplicates: true })
-      .select()
-
-    if (seedError) {
-      return NextResponse.json({ error: seedError.message }, { status: 500 })
+    // Seed defaults if empty
+    if (activities.length === 0) {
+      const created = await Promise.all(
+        DEFAULT_ACTIVITIES.map(a =>
+          notion.pages.create({
+            parent: { data_source_id: ACTIVITIES_DS },
+            properties: activityProperties(a),
+          })
+        )
+      )
+      return NextResponse.json(created.filter(isFullPage).map(pageToActivity))
     }
-    return NextResponse.json(seeded)
-  }
 
-  return NextResponse.json(data)
+    return NextResponse.json(activities)
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }
 
 export async function POST(request: Request) {
-  const body = await request.json()
-
-  const { data, error } = await supabase
-    .from('activities')
-    .insert({
-      name: body.name,
-      emoji: body.emoji,
-      color: body.color,
-      category: body.category,
-      sort_order: body.sort_order ?? 99,
+  try {
+    const body = await request.json()
+    const page = await notion.pages.create({
+      parent: { data_source_id: ACTIVITIES_DS },
+      properties: activityProperties({
+        name: body.name,
+        emoji: body.emoji,
+        color: body.color,
+        category: body.category,
+        sort_order: body.sort_order ?? 99,
+      }),
     })
-    .select()
-    .single()
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    if (!isFullPage(page)) {
+      return NextResponse.json({ error: 'Failed to create activity' }, { status: 500 })
+    }
+
+    return NextResponse.json(pageToActivity(page))
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
-
-  return NextResponse.json(data)
 }
 
 export async function PATCH(request: Request) {
-  const body = await request.json()
-
-  const { data, error } = await supabase
-    .from('activities')
-    .update({
-      name: body.name,
-      emoji: body.emoji,
-      color: body.color,
-      category: body.category,
+  try {
+    const body = await request.json()
+    const props = {
+      'Name': { title: [{ text: { content: body.name } }] },
+      'Emoji': { rich_text: [{ text: { content: body.emoji } }] },
+      'Color': { rich_text: [{ text: { content: body.color } }] },
+      'Category': { select: { name: body.category } },
+    }
+    const page = await notion.pages.update({
+      page_id: body.id,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      properties: props as any,
     })
-    .eq('id', body.id)
-    .select()
-    .single()
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    if (!isFullPage(page)) {
+      return NextResponse.json({ error: 'Failed to update activity' }, { status: 500 })
+    }
+
+    return NextResponse.json(pageToActivity(page))
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
-
-  return NextResponse.json(data)
 }
 
 export async function DELETE(request: NextRequest) {
-  const id = request.nextUrl.searchParams.get('id')
+  try {
+    const id = request.nextUrl.searchParams.get('id')
+    if (!id) {
+      return NextResponse.json({ error: 'id is required' }, { status: 400 })
+    }
 
-  if (!id) {
-    return NextResponse.json({ error: 'id is required' }, { status: 400 })
+    // Archive related calendar entries first
+    const entries = await notion.dataSources.query({
+      data_source_id: ENTRIES_DS,
+      filter: {
+        property: 'Activity',
+        relation: { contains: id },
+      },
+    })
+
+    await Promise.all(
+      entries.results.map(e =>
+        notion.pages.update({ page_id: e.id, archived: true })
+      )
+    )
+
+    // Archive the activity
+    await notion.pages.update({ page_id: id, archived: true })
+
+    return NextResponse.json({ success: true })
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
-
-  // Delete related calendar entries first (cascade should handle this, but just in case)
-  await supabase.from('calendar_entries').delete().eq('activity_id', id)
-
-  const { error } = await supabase.from('activities').delete().eq('id', id)
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-
-  return NextResponse.json({ success: true })
 }
